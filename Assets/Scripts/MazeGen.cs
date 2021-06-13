@@ -39,7 +39,6 @@ public class MazeGen : MonoBehaviour
 	private const int maxAttempts = 10000;
 
 	// third dimension is direction: 0 = bottom, 1 = left
-	[SerializeField]
 	private MazeConnection[,,] connectionMap;
 	private Vector2Int startLoc;
 	private Vector2Int endLoc;
@@ -294,11 +293,11 @@ public class MazeGen : MonoBehaviour
 
 	private void OnDrawGizmos()
 	{
-		if (connectionMap != null && connectionMap.GetLength(0) > GridDims.x && connectionMap.GetLength(1) > GridDims.y)
+		if (connectionMap != null)
 		{
-			for (int x = 0; x < GridDims.x + 1; x++)
+			for (int x = 0; x < connectionMap.GetLength(0); x++)
 			{
-				for (int y = 0; y < GridDims.y + 1; y++)
+				for (int y = 0; y < connectionMap.GetLength(1); y++)
 				{
 					Vector3 cellLoc = GridToWorld(new Vector2Int(x, y));
 
