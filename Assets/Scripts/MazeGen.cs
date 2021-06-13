@@ -34,7 +34,12 @@ public class MazeGen : MonoBehaviour
 	public Transform Player;
 	public Transform Objective;
 	public Transform ObjectParent;
-	public MazeSegment[] SegmentMap;
+	public GameObject[] PrefabsTypeA;
+	public GameObject[] PrefabsTypeB;
+	public GameObject[] PrefabsTypeC;
+	public GameObject[] PrefabsTypeD;
+	public GameObject[] PrefabsTypeE;
+	public GameObject[] PrefabsTypeF;
 
 	private const int maxAttempts = 10000;
 
@@ -201,12 +206,12 @@ public class MazeGen : MonoBehaviour
 				Vector2Int gridCoords = new Vector2Int(x, y);
 				int cellMask = ConnectionMask(gridCoords);
 
-				if (SegmentMap[cellMask].Prefab != null)
+				if (GetMazeSegment(cellMask, out GameObject segmentPrefab, out float rotationY))
 				{
 					Vector3 worldPos = GridToWorld(gridCoords);
-					Quaternion worldRotation = Quaternion.Euler(0, -SegmentMap[cellMask].RotationY, 0);
+					Quaternion worldRotation = Quaternion.Euler(0, rotationY, 0);
 
-					GameObject newObject = GameObject.Instantiate(SegmentMap[cellMask].Prefab, ObjectParent);
+					GameObject newObject = GameObject.Instantiate(segmentPrefab, ObjectParent);
 					newObject.transform.position = worldPos;
 					newObject.transform.rotation = worldRotation;
 				}
@@ -216,6 +221,107 @@ public class MazeGen : MonoBehaviour
 		// position player and objective
 		Player.position = GridToWorld(startLoc);
 		Objective.position = GridToWorld(endLoc);
+	}
+
+	private bool GetMazeSegment(int connectionMask, out GameObject prefab, out float rotationY)
+	{
+		GameObject[] objectPool = null;
+
+		if (connectionMask == 0)
+		{
+			objectPool = PrefabsTypeA;
+			rotationY = 0;
+		}
+		else if (connectionMask == 1)
+		{
+			objectPool = PrefabsTypeB;
+			rotationY = 0;
+		}
+		else if (connectionMask == 2)
+		{
+			objectPool = PrefabsTypeB;
+			rotationY = 270;
+		}
+		else if (connectionMask == 3)
+		{
+			objectPool = PrefabsTypeC;
+			rotationY = 0;
+		}
+		else if (connectionMask == 4)
+		{
+			objectPool = PrefabsTypeB;
+			rotationY = 180;
+		}
+		else if (connectionMask == 5)
+		{
+			objectPool = PrefabsTypeD;
+			rotationY = 0;
+		}
+		else if (connectionMask == 6)
+		{
+			objectPool = PrefabsTypeC;
+			rotationY = 90;
+		}
+		else if (connectionMask == 7)
+		{
+			objectPool = PrefabsTypeE;
+			rotationY = 0;
+		}
+		else if (connectionMask == 8)
+		{
+			objectPool = PrefabsTypeB;
+			rotationY = 270;
+		}
+		else if (connectionMask == 9)
+		{
+			objectPool = PrefabsTypeC;
+			rotationY = 270;
+		}
+		else if (connectionMask == 10)
+		{
+			objectPool = PrefabsTypeD;
+			rotationY = 270;
+		}
+		else if (connectionMask == 11)
+		{
+			objectPool = PrefabsTypeE;
+			rotationY = 270;
+		}
+		else if (connectionMask == 12)
+		{
+			objectPool = PrefabsTypeC;
+			rotationY = 180;
+		}
+		else if (connectionMask == 13)
+		{
+			objectPool = PrefabsTypeE;
+			rotationY = 180;
+		}
+		else if (connectionMask == 14)
+		{
+			objectPool = PrefabsTypeE;
+			rotationY = 90;
+		}
+		else // if (connectionMask == 15)
+		{
+			objectPool = PrefabsTypeF;
+			rotationY = 0;
+		}
+
+		if (objectPool.Length > 0)
+		{
+			int randomIndex = Random.Range(0, objectPool.Length - 1);
+			prefab = objectPool[randomIndex];
+
+			return true;
+		}
+		else
+		{
+			prefab = null;
+			rotationY = 0;
+
+			return false;
+		}
 	}
 
 	private Vector3 GridToWorld(Vector2Int gridLocation)

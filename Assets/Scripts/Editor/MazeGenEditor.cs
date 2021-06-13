@@ -15,7 +15,12 @@ public class MazeGenEditor : Editor
 	private SerializedProperty player;
 	private SerializedProperty objective;
 	private SerializedProperty objectParent;
-	private SerializedProperty segmentMap;
+	private SerializedProperty prefabsTypeA;
+	private SerializedProperty prefabsTypeB;
+	private SerializedProperty prefabsTypeC;
+	private SerializedProperty prefabsTypeD;
+	private SerializedProperty prefabsTypeE;
+	private SerializedProperty prefabsTypeF;
 
 	private void OnEnable()
 	{
@@ -26,7 +31,12 @@ public class MazeGenEditor : Editor
 		player = serializedObject.FindProperty("Player");
 		objective = serializedObject.FindProperty("Objective");
 		objectParent = serializedObject.FindProperty("ObjectParent");
-		segmentMap = serializedObject.FindProperty("SegmentMap");
+		prefabsTypeA = serializedObject.FindProperty("PrefabsTypeA");
+		prefabsTypeB = serializedObject.FindProperty("PrefabsTypeB");
+		prefabsTypeC = serializedObject.FindProperty("PrefabsTypeC");
+		prefabsTypeD = serializedObject.FindProperty("PrefabsTypeD");
+		prefabsTypeE = serializedObject.FindProperty("PrefabsTypeE");
+		prefabsTypeF = serializedObject.FindProperty("PrefabsTypeF");
 	}
 
 	public override void OnInspectorGUI()
@@ -37,9 +47,12 @@ public class MazeGenEditor : Editor
 		EditorGUILayout.PropertyField(objective, new GUIContent("Objective Transform"));
 		EditorGUILayout.PropertyField(objectParent, new GUIContent("Object Parent Transform"));
 
-		System.Array.Resize(ref mazeGen.SegmentMap, 16);
-
-		EditorGUILayout.PropertyField(segmentMap, new GUIContent("Segment Mapping"));
+		EditorGUILayout.PropertyField(prefabsTypeA, new GUIContent("Prefabs A (no connection)"));
+		EditorGUILayout.PropertyField(prefabsTypeB, new GUIContent("Prefabs B (N)"));
+		EditorGUILayout.PropertyField(prefabsTypeC, new GUIContent("Prefabs C (N+E)"));
+		EditorGUILayout.PropertyField(prefabsTypeD, new GUIContent("Prefabs D (N+S)"));
+		EditorGUILayout.PropertyField(prefabsTypeE, new GUIContent("Prefabs E (N+E+S)"));
+		EditorGUILayout.PropertyField(prefabsTypeF, new GUIContent("Prefabs F (N+E+S+W)"));
 
 		serializedObject.ApplyModifiedProperties();
 
