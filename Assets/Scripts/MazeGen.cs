@@ -31,6 +31,7 @@ public class MazeGen : MonoBehaviour
 	public Vector2Int GridDims;
 	public Vector2 GridScale;
 	public int EdgePadding;
+	public float SpecialPrefabChance;
 
 	public Transform Player;
 	public Transform Objective;
@@ -319,10 +320,23 @@ public class MazeGen : MonoBehaviour
 			rotationY = 0;
 		}
 
-		if (objectPool.Length > 0)
+		if (objectPool.Length > 1)
 		{
-			int randomIndex = Random.Range(0, objectPool.Length - 1);
-			prefab = objectPool[randomIndex];
+			if (Random.value < SpecialPrefabChance)
+			{
+				int randomIndex = Random.Range(1, objectPool.Length);
+				prefab = objectPool[randomIndex];
+			}
+			else
+			{
+				prefab = objectPool[0];
+			}
+
+			return true;
+		}
+		else if (objectPool.Length == 1)
+		{
+			prefab = objectPool[0];
 
 			return true;
 		}
