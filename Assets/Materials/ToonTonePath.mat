@@ -119,8 +119,8 @@ Material:
     - _Metallic: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.005
-    - _Pattern2Scale: 50
-    - _Pattern2Strength: 0.19
+    - _Pattern2Scale: 30
+    - _Pattern2Strength: -0.1
     - _PatternScale: 6
     - _PatternStrength: 0.25
     - _QueueOffset: 0
@@ -132,16 +132,16 @@ Material:
     - _Specularity: 0
     - _SrcBlend: 1
     - _Surface: 0
-    - _Threshold: 0.55
+    - _Threshold: 0.65
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:
-    - _AmbientColor: {r: 0.10898005, g: 0.20989011, b: 0.2924528, a: 1}
+    - _AmbientColor: {r: 0.5513528, g: 0.6116643, b: 0.6603774, a: 1}
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _BlackColor: {r: 0, g: 0, b: 0, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
-    - _UnlitColor: {r: 0, g: 0, b: 0, a: 0}
+    - _UnlitColor: {r: 0.46226418, g: 0.18970276, b: 0.18970276, a: 0}
     - _WhiteColor: {r: 0.38314348, g: 0.5396465, b: 0.6603774, a: 1}
   m_BuildTextureStacks: []

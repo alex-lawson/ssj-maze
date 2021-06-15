@@ -30,6 +30,7 @@ public class MazeGen : MonoBehaviour
 {
 	public Vector2Int GridDims;
 	public Vector2 GridScale;
+	public int EdgePadding;
 
 	public Transform Player;
 	public Transform Objective;
@@ -70,22 +71,28 @@ public class MazeGen : MonoBehaviour
 			connectionMap = new MazeConnection[GridDims.x + 1, GridDims.y + 1, 2];
 
 			// choose start and end points
-			startLoc = new Vector2Int(Random.Range(0, GridDims.x - 1), 0);
-			endLoc = new Vector2Int(Random.Range(0, GridDims.x - 1), GridDims.y - 1);
+			startLoc = new Vector2Int(Random.Range(0, GridDims.x - 1), EdgePadding);
+			endLoc = new Vector2Int(Random.Range(0, GridDims.x - 1), GridDims.y - 1 - EdgePadding);
 
 			// close edges
 			for (int x = 0; x <= GridDims.x; x++)
 			{
-				connectionMap[x, 0, 0] = MazeConnection.ForceBlocked;
-				connectionMap[x, GridDims.y, 0] = MazeConnection.ForceBlocked;
-				connectionMap[x, GridDims.y, 1] = MazeConnection.ForceBlocked;
+				for (int i = 0; i <= EdgePadding; i++)
+				{
+					connectionMap[x, i, 0] = MazeConnection.ForceBlocked;
+					connectionMap[x, GridDims.y - i, 0] = MazeConnection.ForceBlocked;
+					connectionMap[x, GridDims.y - i, 1] = MazeConnection.ForceBlocked;
+				}
 			}
 
 			for (int y = 0; y <= GridDims.y; y++)
 			{
-				connectionMap[0, y, 1] = MazeConnection.ForceBlocked;
-				connectionMap[GridDims.x, y, 0] = MazeConnection.ForceBlocked;
-				connectionMap[GridDims.x, y, 1] = MazeConnection.ForceBlocked;
+				for (int i = 0; i <= EdgePadding; i++)
+				{
+					connectionMap[i, y, 1] = MazeConnection.ForceBlocked;
+					connectionMap[GridDims.x - i, y, 0] = MazeConnection.ForceBlocked;
+					connectionMap[GridDims.x - i, y, 1] = MazeConnection.ForceBlocked;
+				}
 			}
 
 			// create solution path - random walk
@@ -150,6 +157,7 @@ public class MazeGen : MonoBehaviour
 			MazeDirection nextDirection = MazeDirection.North;
 			Vector2Int nextOffset = Vector2Int.zero;
 			Vector2Int nextLoc = loc;
+			Vector3Int connection = Vector3Int.zero;
 
 			int dirRandom = Random.Range(0, 3);
 			for (int d = 0; d < 4; d++)
@@ -162,7 +170,9 @@ public class MazeGen : MonoBehaviour
 
 				if (nextLoc.x >= 0 && nextLoc.x < GridDims.x && nextLoc.y >= 0 && nextLoc.y < GridDims.y)
 				{
-					if (!visited.Contains(nextLoc))
+					connection = ConnectionCoords(loc, nextDirection);
+
+					if (connectionMap[connection.x, connection.y, connection.z] != MazeConnection.ForceBlocked && !visited.Contains(nextLoc))
 					{
 						foundNext = true;
 						break;
@@ -172,7 +182,6 @@ public class MazeGen : MonoBehaviour
 
 			if (foundNext)
 			{
-				Vector3Int connection = ConnectionCoords(loc, nextDirection);
 				connectionMap[connection.x, connection.y, connection.z] = markConnectionType;
 				loc = nextLoc;
 

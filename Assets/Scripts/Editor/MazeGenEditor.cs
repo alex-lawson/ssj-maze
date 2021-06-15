@@ -10,53 +10,55 @@ public class MazeGenEditor : Editor
 {
 	private MazeGen mazeGen;
 
-	private SerializedProperty drawGizmos;
-	private SerializedProperty gridDims;
-	private SerializedProperty gridScale;
-	private SerializedProperty player;
-	private SerializedProperty objective;
-	private SerializedProperty objectParent;
-	private SerializedProperty prefabsTypeA;
-	private SerializedProperty prefabsTypeB;
-	private SerializedProperty prefabsTypeC;
-	private SerializedProperty prefabsTypeD;
-	private SerializedProperty prefabsTypeE;
-	private SerializedProperty prefabsTypeF;
+	//private SerializedProperty drawGizmos;
+	//private SerializedProperty gridDims;
+	//private SerializedProperty gridScale;
+	//private SerializedProperty player;
+	//private SerializedProperty objective;
+	//private SerializedProperty objectParent;
+	//private SerializedProperty prefabsTypeA;
+	//private SerializedProperty prefabsTypeB;
+	//private SerializedProperty prefabsTypeC;
+	//private SerializedProperty prefabsTypeD;
+	//private SerializedProperty prefabsTypeE;
+	//private SerializedProperty prefabsTypeF;
 
 	private void OnEnable()
 	{
 		mazeGen = target as MazeGen;
 
-		drawGizmos = serializedObject.FindProperty("DrawGizmos");
-		gridDims = serializedObject.FindProperty("GridDims");
-		gridScale = serializedObject.FindProperty("GridScale");
-		player = serializedObject.FindProperty("Player");
-		objective = serializedObject.FindProperty("Objective");
-		objectParent = serializedObject.FindProperty("ObjectParent");
-		prefabsTypeA = serializedObject.FindProperty("PrefabsTypeA");
-		prefabsTypeB = serializedObject.FindProperty("PrefabsTypeB");
-		prefabsTypeC = serializedObject.FindProperty("PrefabsTypeC");
-		prefabsTypeD = serializedObject.FindProperty("PrefabsTypeD");
-		prefabsTypeE = serializedObject.FindProperty("PrefabsTypeE");
-		prefabsTypeF = serializedObject.FindProperty("PrefabsTypeF");
+		//drawGizmos = serializedObject.FindProperty("DrawGizmos");
+		//gridDims = serializedObject.FindProperty("GridDims");
+		//gridScale = serializedObject.FindProperty("GridScale");
+		//player = serializedObject.FindProperty("Player");
+		//objective = serializedObject.FindProperty("Objective");
+		//objectParent = serializedObject.FindProperty("ObjectParent");
+		//prefabsTypeA = serializedObject.FindProperty("PrefabsTypeA");
+		//prefabsTypeB = serializedObject.FindProperty("PrefabsTypeB");
+		//prefabsTypeC = serializedObject.FindProperty("PrefabsTypeC");
+		//prefabsTypeD = serializedObject.FindProperty("PrefabsTypeD");
+		//prefabsTypeE = serializedObject.FindProperty("PrefabsTypeE");
+		//prefabsTypeF = serializedObject.FindProperty("PrefabsTypeF");
 	}
 
 	public override void OnInspectorGUI()
 	{
-		EditorGUILayout.PropertyField(drawGizmos, new GUIContent("Draw Connection Gizmos"));
+		//EditorGUILayout.PropertyField(drawGizmos, new GUIContent("Draw Connection Gizmos"));
 
-		EditorGUILayout.PropertyField(gridDims, new GUIContent("Grid Dimensions"));
-		EditorGUILayout.PropertyField(gridScale, new GUIContent("Grid Scale"));
-		EditorGUILayout.PropertyField(player, new GUIContent("Player Transform"));
-		EditorGUILayout.PropertyField(objective, new GUIContent("Objective Transform"));
-		EditorGUILayout.PropertyField(objectParent, new GUIContent("Object Parent Transform"));
+		//EditorGUILayout.PropertyField(gridDims, new GUIContent("Grid Dimensions"));
+		//EditorGUILayout.PropertyField(gridScale, new GUIContent("Grid Scale"));
+		//EditorGUILayout.PropertyField(player, new GUIContent("Player Transform"));
+		//EditorGUILayout.PropertyField(objective, new GUIContent("Objective Transform"));
+		//EditorGUILayout.PropertyField(objectParent, new GUIContent("Object Parent Transform"));
 
-		EditorGUILayout.PropertyField(prefabsTypeA, new GUIContent("Prefabs A (no connection)"));
-		EditorGUILayout.PropertyField(prefabsTypeB, new GUIContent("Prefabs B (N)"));
-		EditorGUILayout.PropertyField(prefabsTypeC, new GUIContent("Prefabs C (N+E)"));
-		EditorGUILayout.PropertyField(prefabsTypeD, new GUIContent("Prefabs D (N+S)"));
-		EditorGUILayout.PropertyField(prefabsTypeE, new GUIContent("Prefabs E (N+E+S)"));
-		EditorGUILayout.PropertyField(prefabsTypeF, new GUIContent("Prefabs F (N+E+S+W)"));
+		//EditorGUILayout.PropertyField(prefabsTypeA, new GUIContent("Prefabs A (no connection)"));
+		//EditorGUILayout.PropertyField(prefabsTypeB, new GUIContent("Prefabs B (N)"));
+		//EditorGUILayout.PropertyField(prefabsTypeC, new GUIContent("Prefabs C (N+E)"));
+		//EditorGUILayout.PropertyField(prefabsTypeD, new GUIContent("Prefabs D (N+S)"));
+		//EditorGUILayout.PropertyField(prefabsTypeE, new GUIContent("Prefabs E (N+E+S)"));
+		//EditorGUILayout.PropertyField(prefabsTypeF, new GUIContent("Prefabs F (N+E+S+W)"));
+
+		DrawDefaultInspector();
 
 		serializedObject.ApplyModifiedProperties();
 
