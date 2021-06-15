@@ -10,6 +10,7 @@ public class MazeGenEditor : Editor
 {
 	private MazeGen mazeGen;
 
+	private SerializedProperty drawGizmos;
 	private SerializedProperty gridDims;
 	private SerializedProperty gridScale;
 	private SerializedProperty player;
@@ -26,6 +27,7 @@ public class MazeGenEditor : Editor
 	{
 		mazeGen = target as MazeGen;
 
+		drawGizmos = serializedObject.FindProperty("DrawGizmos");
 		gridDims = serializedObject.FindProperty("GridDims");
 		gridScale = serializedObject.FindProperty("GridScale");
 		player = serializedObject.FindProperty("Player");
@@ -41,6 +43,8 @@ public class MazeGenEditor : Editor
 
 	public override void OnInspectorGUI()
 	{
+		EditorGUILayout.PropertyField(drawGizmos, new GUIContent("Draw Connection Gizmos"));
+
 		EditorGUILayout.PropertyField(gridDims, new GUIContent("Grid Dimensions"));
 		EditorGUILayout.PropertyField(gridScale, new GUIContent("Grid Scale"));
 		EditorGUILayout.PropertyField(player, new GUIContent("Player Transform"));

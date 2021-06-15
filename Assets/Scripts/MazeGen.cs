@@ -41,6 +41,8 @@ public class MazeGen : MonoBehaviour
 	public GameObject[] PrefabsTypeE;
 	public GameObject[] PrefabsTypeF;
 
+	public bool DrawGizmos;
+
 	private const int maxAttempts = 10000;
 
 	// third dimension is direction: 0 = bottom, 1 = left
@@ -240,7 +242,7 @@ public class MazeGen : MonoBehaviour
 		else if (connectionMask == 2)
 		{
 			objectPool = PrefabsTypeB;
-			rotationY = 270;
+			rotationY = 90;
 		}
 		else if (connectionMask == 3)
 		{
@@ -399,7 +401,7 @@ public class MazeGen : MonoBehaviour
 
 	private void OnDrawGizmos()
 	{
-		if (connectionMap != null)
+		if (DrawGizmos && connectionMap != null)
 		{
 			for (int x = 0; x < connectionMap.GetLength(0); x++)
 			{
