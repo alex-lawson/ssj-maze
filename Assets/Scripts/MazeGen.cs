@@ -28,20 +28,29 @@ public struct MazeSegment
 
 public class MazeGen : MonoBehaviour
 {
+	public Transform PlayerTransform;
+	public Transform ObjectParent;
+
 	public Vector2Int GridDims;
 	public Vector2 GridScale;
 	public int EdgePadding;
+
 	public int POITargetCount;
 	public int POIGridSpacing;
+	public GameObject[] POIContents;
 
-	public Transform PlayerTransform;
-	public Transform ObjectParent;
 	public GameObject[] PrefabsTypeA;
 	public GameObject[] PrefabsTypeB;
 	public GameObject[] PrefabsTypeC;
 	public GameObject[] PrefabsTypeD;
 	public GameObject[] PrefabsTypeE;
 	public GameObject[] PrefabsTypeF;
+
+	public GameObject[] POIContainerPrefabsTypeB;
+	public GameObject[] POIContainerPrefabsTypeC;
+	public GameObject[] POIContainerPrefabsTypeD;
+	public GameObject[] POIContainerPrefabsTypeE;
+	public GameObject[] POIContainerPrefabsTypeF;
 
 	public bool DrawGizmos;
 
@@ -51,8 +60,9 @@ public class MazeGen : MonoBehaviour
 
 	// third dimension is direction: 0 = bottom, 1 = left
 	private MazeConnection[,,] connectionMap;
-	List<Vector2Int> poiLocations;
 	private Vector2Int playerStartLocation;
+	private List<Vector2Int> poiLocations;
+	private List<int> poiIndexPool;
 
 	public void Generate()
 	{
@@ -68,7 +78,10 @@ public class MazeGen : MonoBehaviour
 			connectionMap = new MazeConnection[GridDims.x + 1, GridDims.y + 1, 2];
 			poiLocations = new List<Vector2Int>();
 
-			success = GeneratePOIs_RandomWithSpacing(POIGridSpacing) && GenerateMap_TreeGrowth();
+			success = GeneratePOIs_RandomWithSpacing(POITargetCount + 1, POIGridSpacing) && GenerateMap_TreeGrowth();
+
+			// we added an extra POI to consume as the player start location
+			SelectPlayerStart_FromPOIs();
 		}
 
 		if (success)
@@ -84,9 +97,9 @@ public class MazeGen : MonoBehaviour
 		}
 	}
 
-	private bool GeneratePOIs_Random()
+	private bool GeneratePOIs_Random(int targetCount)
 	{
-		int targetCount = Mathf.Min(POITargetCount, GridDims.x * GridDims.y);
+		targetCount = Mathf.Min(targetCount, GridDims.x * GridDims.y);
 		while (poiLocations.Count < targetCount)
 		{
 			Vector2Int randomLocation = new Vector2Int(Random.Range(0, GridDims.x), Random.Range(0, GridDims.y));
@@ -99,10 +112,10 @@ public class MazeGen : MonoBehaviour
 		return true;
 	}
 
-	private bool GeneratePOIs_RandomWithSpacing(int gridSpacing)
+	private bool GeneratePOIs_RandomWithSpacing(int targetCount, int gridSpacing)
 	{
 		int attempts = maxAttempts;
-		while (poiLocations.Count < POITargetCount && attempts > 0)
+		while (poiLocations.Count < targetCount && attempts > 0)
 		{
 			attempts--;
 
@@ -127,7 +140,7 @@ public class MazeGen : MonoBehaviour
 			}
 		}
 
-		bool success = poiLocations.Count == POITargetCount;
+		bool success = poiLocations.Count == targetCount;
 
 		return success;
 	}
@@ -154,11 +167,11 @@ public class MazeGen : MonoBehaviour
 		}
 
 		// select player start location somewhere near the center of the map
-		int xMin = Mathf.FloorToInt(GridDims.x * 0.25f);
-		int xMax = Mathf.CeilToInt(GridDims.x * 0.75f);
-		int yMin = Mathf.FloorToInt(GridDims.y * 0.25f);
-		int yMax = Mathf.CeilToInt(GridDims.y * 0.75f);
-		playerStartLocation = new Vector2Int(Random.Range(xMin, xMax), Random.Range(yMin, yMax));
+		//int xMin = Mathf.FloorToInt(GridDims.x * 0.25f);
+		//int xMax = Mathf.CeilToInt(GridDims.x * 0.75f);
+		//int yMin = Mathf.FloorToInt(GridDims.y * 0.25f);
+		//int yMax = Mathf.CeilToInt(GridDims.y * 0.75f);
+		//playerStartLocation = new Vector2Int(Random.Range(xMin, xMax), Random.Range(yMin, yMax));
 
 		// success is guaranteed!
 		return true;
@@ -344,6 +357,12 @@ public class MazeGen : MonoBehaviour
 		return reachedEnd;
 	}
 
+	private void SelectPlayerStart_FromPOIs()
+	{
+		playerStartLocation = poiLocations[0];
+		poiLocations.RemoveAt(0);
+	}
+
 	private void GenerateObjects()
 	{
 		// clear objects
@@ -359,7 +378,8 @@ public class MazeGen : MonoBehaviour
 			{
 				Vector2Int gridCoords = new Vector2Int(x, y);
 
-				if (GetMazeSegmentPrefab(gridCoords, out GameObject segmentPrefab, out float rotationY))
+				bool isPOI = poiLocations.Contains(gridCoords);
+				if (GetMazeSegmentPrefab(gridCoords, isPOI, out GameObject segmentPrefab, out float rotationY))
 				{
 					Vector3 worldPos = GridToWorld(gridCoords);
 					Quaternion worldRotation = Quaternion.Euler(0, rotationY, 0);
@@ -367,6 +387,16 @@ public class MazeGen : MonoBehaviour
 					GameObject newObject = GameObject.Instantiate(segmentPrefab, ObjectParent);
 					newObject.transform.position = worldPos;
 					newObject.transform.rotation = worldRotation;
+
+					if (isPOI)
+					{
+						POISocket socket = newObject.GetComponentInChildren<POISocket>();
+						if (socket != null && GetNextPOIPrefab(out GameObject poiPrefab, out int poiIndex))
+						{
+							socket.CurrentPOIIndex = poiIndex;
+							GameObject poiInstance = GameObject.Instantiate(poiPrefab, socket.transform);
+						}
+					}
 				}
 			}
 		}
@@ -394,6 +424,40 @@ public class MazeGen : MonoBehaviour
 		}
 	}
 
+	private bool GetNextPOIPrefab(out GameObject prefabObject, out int prefabIndex)
+	{
+		bool success = false;
+
+		// recycle the pool when empty
+		if (poiIndexPool == null || poiIndexPool.Count == 0)
+		{
+			poiIndexPool = new List<int>();
+			for (int i = 0; i < POIContents.Length; i++)
+			{
+				poiIndexPool.Add(i);
+			}
+		}
+
+		if (poiIndexPool.Count > 0)
+		{
+			int poolIndex = Random.Range(0, poiIndexPool.Count);
+
+			prefabIndex = poiIndexPool[poolIndex];
+			prefabObject = POIContents[prefabIndex];
+
+			poiIndexPool.RemoveAt(poolIndex);
+
+			success = true;
+		}
+		else
+		{
+			prefabIndex = -1;
+			prefabObject = null;
+		}
+
+		return success;
+	}
+
 	private void PlaceEdgePaddingObject(Vector2Int gridCoords)
 	{
 		Vector3 worldPos = GridToWorld(gridCoords);
@@ -401,7 +465,7 @@ public class MazeGen : MonoBehaviour
 		newObject.transform.position = worldPos;
 	}
 
-	private bool GetMazeSegmentPrefab(Vector2Int gridLocation, out GameObject prefab, out float rotationY)
+	private bool GetMazeSegmentPrefab(Vector2Int gridLocation, bool isPOIContainer, out GameObject prefab, out float rotationY)
 	{
 		GameObject[] objectPool = null;
 
@@ -414,97 +478,84 @@ public class MazeGen : MonoBehaviour
 		}
 		else if (connectionMask == 1)
 		{
-			objectPool = PrefabsTypeB;
+			objectPool = isPOIContainer ? POIContainerPrefabsTypeB : PrefabsTypeB;
 			rotationY = 0;
 		}
 		else if (connectionMask == 2)
 		{
-			objectPool = PrefabsTypeB;
+			objectPool = isPOIContainer ? POIContainerPrefabsTypeB : PrefabsTypeB;
 			rotationY = 90;
 		}
 		else if (connectionMask == 3)
 		{
-			objectPool = PrefabsTypeC;
+			objectPool = isPOIContainer ? POIContainerPrefabsTypeC : PrefabsTypeC;
 			rotationY = 0;
 		}
 		else if (connectionMask == 4)
 		{
-			objectPool = PrefabsTypeB;
+			objectPool = isPOIContainer ? POIContainerPrefabsTypeB : PrefabsTypeB;
 			rotationY = 180;
 		}
 		else if (connectionMask == 5)
 		{
-			objectPool = PrefabsTypeD;
+			objectPool = isPOIContainer ? POIContainerPrefabsTypeD : PrefabsTypeD;
 			rotationY = 0;
 		}
 		else if (connectionMask == 6)
 		{
-			objectPool = PrefabsTypeC;
+			objectPool = isPOIContainer ? POIContainerPrefabsTypeC : PrefabsTypeC;
 			rotationY = 90;
 		}
 		else if (connectionMask == 7)
 		{
-			objectPool = PrefabsTypeE;
+			objectPool = isPOIContainer ? POIContainerPrefabsTypeE : PrefabsTypeE;
 			rotationY = 0;
 		}
 		else if (connectionMask == 8)
 		{
-			objectPool = PrefabsTypeB;
+			objectPool = isPOIContainer ? POIContainerPrefabsTypeB : PrefabsTypeB;
 			rotationY = 270;
 		}
 		else if (connectionMask == 9)
 		{
-			objectPool = PrefabsTypeC;
+			objectPool = isPOIContainer ? POIContainerPrefabsTypeC : PrefabsTypeC;
 			rotationY = 270;
 		}
 		else if (connectionMask == 10)
 		{
-			objectPool = PrefabsTypeD;
+			objectPool = isPOIContainer ? POIContainerPrefabsTypeD : PrefabsTypeD;
 			rotationY = 270;
 		}
 		else if (connectionMask == 11)
 		{
-			objectPool = PrefabsTypeE;
+			objectPool = isPOIContainer ? POIContainerPrefabsTypeE : PrefabsTypeE;
 			rotationY = 270;
 		}
 		else if (connectionMask == 12)
 		{
-			objectPool = PrefabsTypeC;
+			objectPool = isPOIContainer ? POIContainerPrefabsTypeC : PrefabsTypeC;
 			rotationY = 180;
 		}
 		else if (connectionMask == 13)
 		{
-			objectPool = PrefabsTypeE;
+			objectPool = isPOIContainer ? POIContainerPrefabsTypeE : PrefabsTypeE;
 			rotationY = 180;
 		}
 		else if (connectionMask == 14)
 		{
-			objectPool = PrefabsTypeE;
+			objectPool = isPOIContainer ? POIContainerPrefabsTypeE : PrefabsTypeE;
 			rotationY = 90;
 		}
 		else // if (connectionMask == 15)
 		{
-			objectPool = PrefabsTypeF;
+			objectPool = isPOIContainer ? POIContainerPrefabsTypeF : PrefabsTypeF;
 			rotationY = 0;
 		}
 
-		if (objectPool.Length > 1)
+		if (objectPool.Length > 0)
 		{
-			if (poiLocations.Contains(gridLocation))
-			{
-				int randomIndex = Random.Range(1, objectPool.Length);
-				prefab = objectPool[randomIndex];
-			}
-			else
-			{
-				prefab = objectPool[0];
-			}
-
-			return true;
-		}
-		else if (objectPool.Length == 1)
-		{
-			prefab = objectPool[0];
+			int randomIndex = Random.Range(0, objectPool.Length);
+			prefab = objectPool[randomIndex];
 
 			return true;
 		}
@@ -715,6 +766,10 @@ public class MazeGen : MonoBehaviour
 				Vector3 worldLoc = GridToWorld(poiLocations[i]) + Vector3.up * 6;
 				Gizmos.DrawSphere(worldLoc, 2);
 			}
+
+			Gizmos.color = Color.white;
+			Vector3 playerWorldLoc = GridToWorld(playerStartLocation) + Vector3.up * 6;
+			Gizmos.DrawCube(playerWorldLoc, Vector3.one * 2);
 		}
 	}
 }
