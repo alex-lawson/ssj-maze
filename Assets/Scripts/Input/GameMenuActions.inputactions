@@ -1,0 +1,44 @@
+{
+    "name": "GameMenuActions",
+    "maps": [
+        {
+            "name": "Toggle",
+            "id": "ee3b0e2d-a462-4ba6-af68-84ae3f22fcd8",
+            "actions": [
+                {
+                    "name": "ToggleGameMenu",
+                    "type": "Button",
+                    "id": "d99d57b8-3225-4859-8891-94bf97dd9637",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "758e1cf2-fd45-454f-bf81-d9bc750470ef",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ToggleGameMenu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "94733546-9ca4-40a5-a5e1-602f01748828",
+                    "path": "<Keyboard>/enter",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ToggleGameMenu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}
